@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <BuildingData>
+    <DefName>Stone</DefName>
+    <Label>石头</Label>
+    <Description>随处可见的石头, 挖掘可以获得原石</Description>
+    <PathCost>-1</PathCost>
+    <TexturePath>Textures\Buildings\Natures\stone</TexturePath>
+    <IsBuildable>false</IsBuildable>
+    <WorkToDeconstruct>100</WorkToDeconstruct>
+  </BuildingData>
+</Defs>
