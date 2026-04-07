@@ -7,6 +7,7 @@ namespace XmqqyBackpack
 {
     public static class DataManager
     {
+        private static Dictionary<string, ItemData> _items = new Dictionary<string, ItemData>();
         private static Dictionary<string, BuildingData> _buildings = new Dictionary<string, BuildingData>();
         private static Dictionary<string, GroundData> _grounds = new Dictionary<string, GroundData>();
         private static bool _isLoaded = false;
@@ -15,7 +16,7 @@ namespace XmqqyBackpack
         {
             if (_isLoaded) return;
 
-            string dataPath = Path.Combine(Application.streamingAssetsPath, "Datas");
+            string dataPath = Path.Combine(Application.streamingAssetsPath, "Data");
             if (!Directory.Exists(dataPath))
             {
                 Debug.LogError($"[DataManager] 目录不存在: {dataPath}");
@@ -31,48 +32,66 @@ namespace XmqqyBackpack
             }
 
             _isLoaded = true;
-            Debug.Log($"[DataManager] 加载完成: Building={_buildings.Count}, Ground={_grounds.Count}");
+            Debug.Log($"[DataManager] 加载完成: Item={_items.Count}, Building={_buildings.Count}, Ground={_grounds.Count}");
         }
 
         private static void TryLoadFile(string filePath)
         {
-            try
+            // 1. 尝试作为 BuildingData 列表加载
+            var buildingList = Deserialize<List<BuildingData>>(filePath, "Defs");
+            if (buildingList != null && buildingList.Count > 0)
             {
-                // 先尝试作为 BuildingData 列表加载
-                var buildingList = Deserialize<List<BuildingData>>(filePath, "Defs");
-                if (buildingList != null && buildingList.Count > 0)
-                {
-                    foreach (var b in buildingList)
-                        if (!_buildings.ContainsKey(b.DefName))
-                            _buildings[b.DefName] = b;
-                    Debug.Log($"[DataManager] 加载 Building: {Path.GetFileName(filePath)} -> {buildingList.Count} 条");
-                    return;
-                }
-
-                // 再尝试作为 GroundData 列表加载
-                var groundList = Deserialize<List<GroundData>>(filePath, "Defs");
-                if (groundList != null && groundList.Count > 0)
-                {
-                    foreach (var g in groundList)
-                        if (!_grounds.ContainsKey(g.DefName))
-                            _grounds[g.DefName] = g;
-                    Debug.Log($"[DataManager] 加载 Ground: {Path.GetFileName(filePath)} -> {groundList.Count} 条");
-                    return;
-                }
-
-                Debug.LogWarning($"[DataManager] 无法识别文件内容: {filePath}");
+                foreach (var b in buildingList)
+                    if (!_buildings.ContainsKey(b.DefName))
+                        _buildings[b.DefName] = b;
+                Debug.Log($"[DataManager] 加载 Building: {Path.GetFileName(filePath)} -> {buildingList.Count} 条");
+                return;
             }
-            catch (System.Exception e)
+
+            // 2. 尝试作为 GroundData 列表加载
+            var groundList = Deserialize<List<GroundData>>(filePath, "Defs");
+            if (groundList != null && groundList.Count > 0)
             {
-                Debug.LogError($"[DataManager] 加载失败 {filePath}: {e.Message}");
+                foreach (var g in groundList)
+                    if (!_grounds.ContainsKey(g.DefName))
+                        _grounds[g.DefName] = g;
+                Debug.Log($"[DataManager] 加载 Ground: {Path.GetFileName(filePath)} -> {groundList.Count} 条");
+                return;
             }
+
+            // 3. 尝试作为 ItemData 列表加载
+            var itemList = Deserialize<List<ItemData>>(filePath, "Defs");
+            if (itemList != null && itemList.Count > 0)
+            {
+                foreach (var i in itemList)
+                    if (!_items.ContainsKey(i.DefName))
+                        _items[i.DefName] = i;
+                Debug.Log($"[DataManager] 加载 Item: {Path.GetFileName(filePath)} -> {itemList.Count} 条");
+                return;
+            }
+
+            Debug.LogWarning($"[DataManager] 无法识别文件内容: {filePath}");
         }
 
         private static T Deserialize<T>(string filePath, string rootName)
         {
-            var serializer = new XmlSerializer(typeof(T), new XmlRootAttribute(rootName));
-            using (var reader = new StreamReader(filePath))
-                return (T)serializer.Deserialize(reader);
+            try
+            {
+                var serializer = new XmlSerializer(typeof(T), new XmlRootAttribute(rootName));
+                using (var reader = new StreamReader(filePath))
+                    return (T)serializer.Deserialize(reader);
+            }
+            catch
+            {
+                return default(T);
+            }
+        }
+
+        public static ItemData GetItem(string defName)
+        {
+            _items.TryGetValue(defName, out var data);
+            if (data == null) Debug.LogWarning($"[DataManager] 未找到物品: {defName}");
+            return data;
         }
 
         public static BuildingData GetBuilding(string defName)

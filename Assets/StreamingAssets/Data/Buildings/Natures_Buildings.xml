@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <BuildingData>
+    <DefName>Stone</DefName>
+    <Label>石头</Label>
+    <Description>随处可见的石头, 挖掘可以获得原石</Description>
+    <PathCost>-1</PathCost>
+    <TexturePath>Textures\Buildings\Natures\stone</TexturePath>
+    <IsBuildable>false</IsBuildable>
+    <WorkToDeconstruct>1000</WorkToDeconstruct>
+    <HasShadow>true</HasShadow>
+  </BuildingData>
+  <BuildingData>
+    <DefName>Tree</DefName>
+    <Label>橡树</Label>
+    <Description>随处可见的橡树, 砍伐可以获得原木</Description>
+    <PathCost>0.5</PathCost>
+    <TexturePath>Textures\Buildings\Natures\tree</TexturePath>
+    <IsBuildable>false</IsBuildable>
+    <WorkToDeconstruct>1000</WorkToDeconstruct>
+    <HasShadow>true</HasShadow>
+    <IsFullBlockShadow>false </IsFullBlockShadow>
+  </BuildingData>
+</Defs>

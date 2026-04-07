@@ -91,6 +91,18 @@ namespace XmqqyBackpack
         public float WorkToDeconstruct { get; set; }
 
         /// <summary>
+        /// [可选] 是否有阴影，默认 false
+        /// </summary>
+        [XmlElement("HasShadow")]
+        public bool HasShadow { get; set; } = false;
+
+        /// <summary>
+        /// [可选] 是否为完整方块阴影
+        /// </summary>
+        [XmlElement("IsFullBlockShadow")]
+        public bool IsFullBlockShadow { get; set; } = true;
+
+        /// <summary>
         /// 获取拆除工作量
         /// </summary>
         public float GetActualDeconstructWork()

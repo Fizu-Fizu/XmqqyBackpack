@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ItemData>
+    <DefName>Wood</DefName>
+    <Label>原木</Label>
+    <Description>todo</Description>
+    <MaxStack>10</MaxStack>
+    <IconPath>Textures/Items/Resource/wood</IconPath>
+  </ItemData>
+
+  <ItemData>
+    <DefName>Stone</DefName>
+    <Label>原石</Label>
+    <Description>todo</Description>
+    <MaxStack>10</MaxStack>
+    <IconPath>Textures/Items/Resource/stone</IconPath>
+  </ItemData>
+
+  <ItemData>
+    <DefName>Iron_Ore</DefName>
+    <Label>铁矿</Label>
+    <Description>todo</Description>
+    <MaxStack>10</MaxStack>
+    <IconPath>Textures/Items/Resource/iron_ore</IconPath>
+  </ItemData>
+
+  <ItemData>
+    <DefName>Coal</DefName>
+    <Label>煤</Label>
+    <Description>todo</Description>
+    <MaxStack>10</MaxStack>
+    <IconPath>Textures/Items/Resource/coal</IconPath>
+  </ItemData>
+
+  <ItemData>
+    <DefName>Iron</DefName>
+    <Label>铁</Label>
+    <Description>todo</Description>
+    <MaxStack>10</MaxStack>
+    <CanCraft>true</CanCraft>
+    <CraftRecipe>
+      <CostItem>
+        <DefName>Iron_Ore</DefName>
+        <Amount>1</Amount>
+      </CostItem>
+      <CostItem>
+        <DefName>Coal</DefName>
+        <Amount>1</Amount>
+      </CostItem>
+    </CraftRecipe>
+    <IconPath>Textures/Items/Resource/iron</IconPath>
+  </ItemData>
+
+  <ItemData>
+    <DefName>Steel</DefName>
+    <Label>钢</Label>
+    <Description>todo</Description>
+    <MaxStack>10</MaxStack>
+    <CanCraft>true</CanCraft>
+    <CraftRecipe>
+      <CostItem>
+        <DefName>Iron</DefName>
+        <Amount>1</Amount>
+      </CostItem>
+      <CostItem>
+        <DefName>Coal</DefName>
+        <Amount>1</Amount>
+      </CostItem>
+    </CraftRecipe>
+    <IconPath>Textures/Items/Resource/steel</IconPath>
+  </ItemData>
+</Defs>

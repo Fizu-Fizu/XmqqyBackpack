@@ -17,7 +17,6 @@ namespace XmqqyBackpack
 
         protected override BuildingData GetDataByDefName(string defName)
         {
-            // 注意：请确保 DataManager 中有 GetBuilding 方法，如果原方法是 GetThing，请改为 GetBuilding
             return DataManager.GetBuilding(defName);
         }
 
@@ -33,12 +32,25 @@ namespace XmqqyBackpack
         public override GameObject RecreateObject(Vector3Int gridPos)
         {
             GameObject obj = base.RecreateObject(gridPos);
-            if (obj != null && extraDataMap.TryGetValue(gridPos, out var extraData))
+            if (obj != null)
             {
-                var initializable = obj.GetComponent<IExtraDataInitializable>();
-                if (initializable != null)
-                    initializable.Initialize(extraData);
-                // 如果没有实现接口，就不做任何事（不报错）
+                if (dataMap.TryGetValue(gridPos, out string defName))
+                {
+                    BuildingData buildingData = GetDataByDefName(defName);
+                    if (buildingData != null)
+                    {
+                        var shadowCtrl = obj.GetComponentInChildren<BuildingShadowController>();
+                        if (shadowCtrl != null)
+                            shadowCtrl.Initialize(buildingData);
+                    }
+                }
+
+                if (extraDataMap.TryGetValue(gridPos, out var extraData))
+                {
+                    var initializable = obj.GetComponent<IExtraDataInitializable>();
+                    if (initializable != null)
+                        initializable.Initialize(extraData);
+                }
             }
             return obj;
         }

@@ -14,7 +14,7 @@ namespace XmqqyBackpack
         public GameObject frontObj;   // 正面
         public GameObject backObj;    // 背面
         public GameObject leftObj;    // 左侧
-        public GameObject rightObj;   // 右侧
+        public GameObject rightObj;   // 右侧 
 
         [Header("世界引用")]
         public InfiniteWorld infiniteWorld;
