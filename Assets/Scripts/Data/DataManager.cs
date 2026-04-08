@@ -107,5 +107,29 @@ namespace XmqqyBackpack
             if (data == null) Debug.LogWarning($"[DataManager] 未找到地面: {defName}");
             return data;
         }
+        
+        /// <summary>
+        /// 获取所有物品数据
+        /// </summary>
+        public static IEnumerable<ItemData> GetAllItems()
+        {
+            return _items.Values;
+        }
+
+        /// <summary>
+        /// 获取所有建筑数据
+        /// </summary>
+        public static IEnumerable<BuildingData> GetAllBuildings()
+        {
+            return _buildings.Values;
+        }
+
+        /// <summary>
+        /// 获取所有地面数据
+        /// </summary>
+        public static IEnumerable<GroundData> GetAllGrounds()
+        {
+            return _grounds.Values;
+        }
     }
 }

@@ -27,6 +27,7 @@ public class InventoryTestButtons : MonoBehaviour
     // 可选：添加其他物品的测试方法
     public void AddStone()
     {
-        InventoryManager.Instance?.AddItem("Stone", 5);
+        InventoryManager.Instance?.AddItem("Iron", 5);
+        InventoryManager.Instance?.AddItem("Coal", 5);
     }
 }

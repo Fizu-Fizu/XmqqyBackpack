@@ -32,7 +32,7 @@ namespace XmqqyBackpack
         /// [可选] 最大堆叠数量，默认 1
         /// </summary>
         [XmlElement("MaxStack")]
-        public int MaxStack { get; set; } = 1;
+        public int MaxStack { get; set; } = 100;
 
         /// <summary>
         /// [可选] 图标在 Resources 中的路径（例如 "Icons/apple"）

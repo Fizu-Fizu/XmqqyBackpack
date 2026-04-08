@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using XmqqyBackpack;
+using UnityEngine.UI;
 
 public class InventoryManager : MonoBehaviour
 {
@@ -49,6 +50,10 @@ public class InventoryManager : MonoBehaviour
 
         // 初始刷新全部（默认都是空格）
         RefreshAllUI();
+
+        // 刷新 Content 布局
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(slotsParent as RectTransform);
     }
 
     // ========== 公共接口 ==========
@@ -181,8 +186,7 @@ public class InventoryManager : MonoBehaviour
 
     private void RefreshSlot(int index)
     {
-        if (index >= 0 && index < slotUIs.Count)
-            slotUIs[index].Refresh(slots[index]);
+        RefreshSlotUI(index);
     }
 
     private void RefreshSlots(List<int> indices)
@@ -192,7 +196,15 @@ public class InventoryManager : MonoBehaviour
             RefreshSlot(i);
         }
     }
-    
+    /// <summary>
+    /// 刷新单个格子的 UI（供外部调用）
+    /// </summary>
+    public void RefreshSlotUI(int index)
+    {
+        if (index >= 0 && index < slotUIs.Count)
+            slotUIs[index].Refresh(slots[index]);
+    }
+
     /// <summary>
     /// 交换两个格子的内容
     /// </summary>
@@ -205,16 +217,71 @@ public class InventoryManager : MonoBehaviour
         slots[indexA] = slots[indexB];
         slots[indexB] = temp;
 
-        RefreshSlotUI(indexA);
-        RefreshSlotUI(indexB);
+        RefreshSlot(indexA);
+        RefreshSlot(indexB);
+    }
+
+    // ========== 合成相关方法 ==========
+
+    /// <summary>
+    /// 获取背包中指定物品的总数量
+    /// </summary>
+    public int GetTotalAmount(string defName)
+    {
+        int total = 0;
+        for (int i = 0; i < CAPACITY; i++)
+        {
+            InventorySlot slot = slots[i];
+            if (!slot.IsEmpty && slot.ItemDefName == defName)
+                total += slot.Amount;
+        }
+        return total;
     }
 
     /// <summary>
-    /// 刷新单个格子的 UI（供外部调用）
+    /// 尝试合成物品（根据 ItemData 中的 CraftRecipe 扣除材料并添加成品）
     /// </summary>
-    public void RefreshSlotUI(int index)
+    public bool CraftItem(string resultDefName)
     {
-        if (index >= 0 && index < slotUIs.Count)
-            slotUIs[index].Refresh(slots[index]);
+        ItemData resultData = DataManager.GetItem(resultDefName);
+        if (resultData == null || !resultData.CanCraft || resultData.CraftRecipe == null)
+        {
+            Debug.LogWarning($"无法合成 {resultDefName}：数据无效或不可合成");
+            return false;
+        }
+
+        // 1. 检查材料是否足够
+        foreach (CostItem cost in resultData.CraftRecipe)
+        {
+            if (GetTotalAmount(cost.DefName) < cost.Amount)
+            {
+                Debug.Log($"材料不足：需要 {cost.DefName} x{cost.Amount}");
+                return false;
+            }
+        }
+
+        // 2. 扣除材料
+        foreach (CostItem cost in resultData.CraftRecipe)
+        {
+            int need = cost.Amount;
+            for (int i = 0; i < CAPACITY && need > 0; i++)
+            {
+                InventorySlot slot = slots[i];
+                if (!slot.IsEmpty && slot.ItemDefName == cost.DefName)
+                {
+                    int take = Mathf.Min(need, slot.Amount);
+                    slot.Amount -= take;
+                    need -= take;
+                    if (slot.Amount <= 0)
+                        slot.Clear();
+                }
+            }
+        }
+
+        // 3. 添加成品（默认数量为1，可根据需求扩展）
+        AddItem(resultDefName, 1);
+        RefreshAllUI();
+        Debug.Log($"合成成功：{resultData.Label}");
+        return true;
     }
 }

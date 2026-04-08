@@ -5,25 +5,6 @@ using System.Xml.Serialization;
 namespace XmqqyBackpack
 {
     /// <summary>
-    /// 单个建造材料的定义
-    /// </summary>
-    [Serializable]
-    public class CostItem
-    {
-        /// <summary>
-        /// [必须] 材料ID
-        /// </summary>
-        [XmlElement("ItemDefName")]
-        public string ItemDefName { get; set; }
-
-        /// <summary>
-        /// [必须] 所需数量
-        /// </summary>
-        [XmlElement("Count")]
-        public int Count { get; set; }
-    }
-
-    /// <summary>
     /// 建筑数据定义
     /// </summary>
     [Serializable]
