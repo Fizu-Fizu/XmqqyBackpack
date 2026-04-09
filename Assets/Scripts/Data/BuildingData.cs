@@ -84,6 +84,13 @@ namespace XmqqyBackpack
         public bool IsFullBlockShadow { get; set; } = true;
 
         /// <summary>
+        /// [可选] 拆除时掉落物列表
+        /// </summary>
+        [XmlArray("DeconstructDropList")]
+        [XmlArrayItem("DropItem")]
+        public List<DropItem> DeconstructDropList { get; set; }
+
+        /// <summary>
         /// 获取拆除工作量
         /// </summary>
         public float GetActualDeconstructWork()

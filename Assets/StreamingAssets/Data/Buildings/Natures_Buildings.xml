@@ -9,6 +9,13 @@
     <IsBuildable>false</IsBuildable>
     <WorkToDeconstruct>1000</WorkToDeconstruct>
     <HasShadow>true</HasShadow>
+    <DeconstructDropList>
+      <DropItem>
+        <DefName>Stone</DefName>
+          <MinAmount>3</MinAmount>
+          <MaxAmount>5</MaxAmount>
+      </DropItem>
+    </DeconstructDropList>
   </BuildingData>
   <BuildingData>
     <DefName>Tree</DefName>
@@ -19,6 +26,13 @@
     <IsBuildable>false</IsBuildable>
     <WorkToDeconstruct>1000</WorkToDeconstruct>
     <HasShadow>true</HasShadow>
-    <IsFullBlockShadow>false </IsFullBlockShadow>
+    <IsFullBlockShadow>false</IsFullBlockShadow>
+    <DeconstructDropList>
+      <DropItem>
+        <DefName>Wood</DefName>
+          <MinAmount>5</MinAmount>
+          <MaxAmount>8</MaxAmount>
+      </DropItem>
+    </DeconstructDropList>
   </BuildingData>
 </Defs>
