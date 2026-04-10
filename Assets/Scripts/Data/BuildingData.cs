@@ -54,12 +54,6 @@ namespace XmqqyBackpack
         public List<CostItem> CostList { get; set; }
 
         /// <summary>
-        /// [可选] 物体分类标签
-        /// </summary>
-        [XmlElement("Category")]
-        public string Category { get; set; }
-
-        /// <summary>
         /// [可选] 贴图路径（相对于 Resources）
         /// </summary>
         [XmlElement("TexturePath")]
@@ -89,6 +83,13 @@ namespace XmqqyBackpack
         [XmlArray("DeconstructDropList")]
         [XmlArrayItem("DropItem")]
         public List<DropItem> DeconstructDropList { get; set; }
+
+        /// <summary>
+        /// [可选] 可破坏类型列表
+        /// </summary>
+        [XmlArray("DestroyTypes")]
+        [XmlArrayItem("DestroyType")]
+        public List<string> DestroyTypes { get; set; } = null;
 
         /// <summary>
         /// 获取拆除工作量

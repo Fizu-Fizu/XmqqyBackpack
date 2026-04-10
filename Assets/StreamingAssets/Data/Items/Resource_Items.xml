@@ -18,6 +18,13 @@
     <DefName>Iron_Ore</DefName>
     <Label>铁矿</Label>
     <Description>todo</Description>
+    <CanCraft>true</CanCraft>
+    <CraftRecipe>
+      <CostItem>
+        <DefName>Stone</DefName>
+        <Amount>2</Amount>
+      </CostItem>
+    </CraftRecipe>
     <IconPath>Textures/Items/Resource/iron_ore</IconPath>
   </ItemData>
 
@@ -25,6 +32,13 @@
     <DefName>Coal</DefName>
     <Label>煤</Label>
     <Description>todo</Description>
+    <CanCraft>true</CanCraft>
+    <CraftRecipe>
+      <CostItem>
+        <DefName>Stone</DefName>
+        <Amount>2</Amount>
+      </CostItem>
+    </CraftRecipe>
     <IconPath>Textures/Items/Resource/coal</IconPath>
   </ItemData>
 

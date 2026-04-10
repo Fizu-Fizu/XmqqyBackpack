@@ -45,10 +45,19 @@ public class PawnManager : MonoBehaviour
     // 路径重算协程
     private Coroutine repathCoroutine;
 
+    // 兴趣点唯一标识
+    private string interestKey;
+
     private void Awake()
     {
+        // 生成唯一标识
+        interestKey = "Pawn_" + GetInstanceID();
+
         if (infiniteWorld == null)
             infiniteWorld = FindObjectOfType<InfiniteWorld>();
+
+        // 注册兴趣点
+        infiniteWorld?.RegisterInterestPoint(interestKey, transform.position);
 
         SetActiveDirection(frontObj);
         lastMoveDir = Vector2.zero;
@@ -59,7 +68,6 @@ public class PawnManager : MonoBehaviour
         // 初始化路径可视化
         if (pathLinePrefab != null)
         {
-            // 使用指定父对象，若未指定则放在场景根节点
             Transform parent = pathLineParent != null ? pathLineParent : null;
             pathLineInstance = Instantiate(pathLinePrefab, parent);
             pathLineRenderer = pathLineInstance.GetComponent<LineRenderer>();
@@ -67,6 +75,12 @@ public class PawnManager : MonoBehaviour
                 pathLineRenderer = pathLineInstance.AddComponent<LineRenderer>();
             pathLineRenderer.positionCount = 0;
         }
+    }
+
+    private void OnDestroy()
+    {
+        // 注销兴趣点
+        infiniteWorld?.UnregisterInterestPoint(interestKey);
     }
 
     /// <summary>
@@ -77,14 +91,11 @@ public class PawnManager : MonoBehaviour
         targetPosition = worldTarget;
         currentDestination = worldTarget;
 
-        // 停止旧的协程
         if (repathCoroutine != null)
             StopCoroutine(repathCoroutine);
 
-        // 立即计算一次路径
         RecalculatePath();
 
-        // 启动每秒重算的协程
         repathCoroutine = StartCoroutine(RepathRoutine());
     }
 
@@ -93,20 +104,18 @@ public class PawnManager : MonoBehaviour
         Vector3Int startGrid = WorldToGrid(transform.position);
         Vector3Int goalGrid = WorldToGrid(currentDestination);
 
-        // 计算新路径
         List<Vector3Int> newPath = Pathfinder.FindPath(startGrid, goalGrid);
 
         if (newPath != null && newPath.Count > 0)
         {
             currentPath = newPath;
-            currentPathIndex = 0; // 跳过起点（当前位置）
+            currentPathIndex = 0;
             isMoving = true;
             UpdatePathVisualization();
         }
         else
         {
             Debug.LogWarning($"重新计算路径失败：{startGrid} -> {goalGrid}");
-            // 不改变 currentPath，等待下一次重算
         }
     }
 
@@ -122,6 +131,9 @@ public class PawnManager : MonoBehaviour
 
     private void Update()
     {
+        // 每帧更新兴趣点位置
+        infiniteWorld?.RegisterInterestPoint(interestKey, transform.position);
+
         if (currentPath != null && currentPathIndex < currentPath.Count)
         {
             Vector3 targetWorldPos = GridToWorld(currentPath[currentPathIndex]);
@@ -129,20 +141,17 @@ public class PawnManager : MonoBehaviour
             Vector2 newPos = Vector2.MoveTowards(currentPos, targetWorldPos, speed * Time.deltaTime);
             transform.position = newPos;
 
-            // 方向显示
             Vector2 moveDelta = newPos - currentPos;
             if (moveDelta.magnitude > 0.01f)
                 UpdateDirection(moveDelta.normalized);
 
-            // 更新世界管理器
             if (infiniteWorld != null)
                 infiniteWorld.SetPlayerPosition(new Vector3(transform.position.x, 0, transform.position.y));
 
-            // 到达当前节点
             if (Vector2.Distance(newPos, targetWorldPos) < 0.01f)
             {
                 currentPathIndex++;
-                UpdatePathVisualization(); // 更新线条显示剩余路径
+                UpdatePathVisualization();
 
                 if (currentPathIndex >= currentPath.Count)
                 {

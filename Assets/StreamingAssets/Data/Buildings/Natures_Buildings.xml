@@ -12,11 +12,15 @@
     <DeconstructDropList>
       <DropItem>
         <DefName>Stone</DefName>
-          <MinAmount>3</MinAmount>
-          <MaxAmount>5</MaxAmount>
+          <MinAmount>8</MinAmount>
+          <MaxAmount>10</MaxAmount>
       </DropItem>
     </DeconstructDropList>
+    <DestroyTypes>
+      <DestroyType>Stone</DestroyType>
+    </DestroyTypes>
   </BuildingData>
+
   <BuildingData>
     <DefName>Tree</DefName>
     <Label>橡树</Label>
@@ -34,5 +38,8 @@
           <MaxAmount>8</MaxAmount>
       </DropItem>
     </DeconstructDropList>
+    <DestroyTypes>
+      <DestroyType>Wood</DestroyType>
+    </DestroyTypes>
   </BuildingData>
 </Defs>

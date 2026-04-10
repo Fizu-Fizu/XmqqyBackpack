@@ -25,13 +25,19 @@ namespace XmqqyBackpack
         {
             if (world == null) world = FindObjectOfType<InfiniteWorld>();
             if (world != null)
+            {
                 world.OnChunkLoaded += HandleChunkLoaded;
+                world.OnChunkUnloaded += HandleChunkUnloaded;
+            }
         }
 
         private void OnDisable()
         {
             if (world != null)
+            {
                 world.OnChunkLoaded -= HandleChunkLoaded;
+                world.OnChunkUnloaded -= HandleChunkUnloaded;
+            }
         }
 
         private void HandleChunkLoaded(Vector3Int chunkCoord, float[,] noiseMap)
@@ -64,6 +70,11 @@ namespace XmqqyBackpack
                     }
                 }
             }
+        }
+
+        private void HandleChunkUnloaded(Vector3Int chunkCoord)
+        {
+            generatedChunks.Remove(chunkCoord);
         }
 
         private string GetDefNameForNoise(float noise)

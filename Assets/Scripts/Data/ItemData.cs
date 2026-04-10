@@ -54,6 +54,12 @@ namespace XmqqyBackpack
         public List<CostItem> CraftRecipe { get; set; }
 
         /// <summary>
+        /// [可选] 工具属性
+        /// </summary>
+        [XmlElement("ToolProperties")]
+        public ToolProperties ToolProperties { get; set; } = null;
+
+        /// <summary>
         /// [可选] 合成所需的建筑 DefName（指向 BuildingData）
         /// </summary>
         [XmlElement("CraftingBuildingDefName")]

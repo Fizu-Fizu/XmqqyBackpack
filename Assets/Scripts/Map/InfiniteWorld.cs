@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
 namespace XmqqyBackpack
 {
     public class InfiniteWorld : MonoBehaviour
@@ -15,23 +14,23 @@ namespace XmqqyBackpack
         [SerializeField] private int chunkSize = 8;
         [SerializeField] private int loadRadius = 2;
 
-        [Header("玩家参数")]
-        [SerializeField] private Vector3 playerPosition = Vector3.zero;
-
-        // 公开属性供生成器访问
+        // 公开属性
         public int ChunkSize => chunkSize;
         public float Scale => scale;
 
         // 区块数据缓存：存储原始噪声值 (0~1)
         private Dictionary<Vector3Int, float[,]> chunkNoiseCache = new Dictionary<Vector3Int, float[,]>();
         private HashSet<Vector3Int> loadedChunks = new HashSet<Vector3Int>();
-        private Vector3Int lastPlayerChunk;
+
+        // 兴趣点字典：key -> 世界坐标
+        private Dictionary<string, Vector3> interestPoints = new Dictionary<string, Vector3>();
+        private bool needRefreshChunks = true;   // 标记是否需要重新计算区块
 
         // 全局偏移
         private float globalOffsetX;
         private float globalOffsetZ;
 
-        // 区块加载/卸载事件，用于通知生成器
+        // 区块加载/卸载事件
         public System.Action<Vector3Int, float[,]> OnChunkLoaded;
         public System.Action<Vector3Int> OnChunkUnloaded;
 
@@ -42,43 +41,72 @@ namespace XmqqyBackpack
             globalOffsetX = Random.Range(-offsetRange, offsetRange);
             globalOffsetZ = Random.Range(-offsetRange, offsetRange);
 
-            lastPlayerChunk = GetChunkCoordFromWorldPos(playerPosition);
-            LoadChunksAroundCenter(lastPlayerChunk);
+            needRefreshChunks = true;
         }
 
         private void Update()
         {
-            Vector3Int currentChunk = GetChunkCoordFromWorldPos(playerPosition);
-            if (currentChunk != lastPlayerChunk)
+            if (needRefreshChunks)
             {
-                lastPlayerChunk = currentChunk;
-                LoadChunksAroundCenter(lastPlayerChunk);
+                RefreshChunks();
+                needRefreshChunks = false;
             }
         }
 
-        private Vector3Int GetChunkCoordFromWorldPos(Vector3 worldPos)
+        /// <summary>
+        /// 注册或更新一个兴趣点的位置
+        /// </summary>
+        public void RegisterInterestPoint(string key, Vector3 position)
         {
-            int x = Mathf.FloorToInt(worldPos.x / chunkSize);
-            int z = Mathf.FloorToInt(worldPos.z / chunkSize);
-            return new Vector3Int(x, 0, z);
+            if (interestPoints.ContainsKey(key))
+                interestPoints[key] = position;
+            else
+                interestPoints.Add(key, position);
+            needRefreshChunks = true;
         }
 
-        private void LoadChunksAroundCenter(Vector3Int center)
+        /// <summary>
+        /// 注销一个兴趣点
+        /// </summary>
+        public void UnregisterInterestPoint(string key)
         {
-            int minX = center.x - loadRadius;
-            int maxX = center.x + loadRadius;
-            int minZ = center.z - loadRadius;
-            int maxZ = center.z + loadRadius;
+            if (interestPoints.Remove(key))
+                needRefreshChunks = true;
+        }
 
-            HashSet<Vector3Int> needed = new HashSet<Vector3Int>();
-            for (int x = minX; x <= maxX; x++)
-                for (int z = minZ; z <= maxZ; z++)
-                    needed.Add(new Vector3Int(x, 0, z));
+        /// <summary>
+        /// 兼容旧 API：设置玩家位置（默认 key 为 "Player"）
+        /// </summary>
+        public void SetPlayerPosition(Vector3 newPos)
+        {
+            RegisterInterestPoint("Player", newPos);
+        }
 
-            // 卸载
+        /// <summary>
+        /// 根据当前所有兴趣点，重新计算需要加载的区块并更新
+        /// </summary>
+        private void RefreshChunks()
+        {
+            if (interestPoints.Count == 0) return;
+
+            // 收集所有兴趣点周围需要加载的区块
+            HashSet<Vector3Int> neededChunks = new HashSet<Vector3Int>();
+            foreach (var point in interestPoints.Values)
+            {
+                Vector3Int centerChunk = GetChunkCoordFromWorldPos(point);
+                for (int x = -loadRadius; x <= loadRadius; x++)
+                {
+                    for (int z = -loadRadius; z <= loadRadius; z++)
+                    {
+                        neededChunks.Add(new Vector3Int(centerChunk.x + x, 0, centerChunk.z + z));
+                    }
+                }
+            }
+
+            // 卸载不再需要的区块
             List<Vector3Int> toUnload = new List<Vector3Int>();
             foreach (var chunk in loadedChunks)
-                if (!needed.Contains(chunk))
+                if (!neededChunks.Contains(chunk))
                     toUnload.Add(chunk);
             foreach (var chunk in toUnload)
             {
@@ -87,8 +115,8 @@ namespace XmqqyBackpack
                 chunkNoiseCache.Remove(chunk);
             }
 
-            // 加载
-            foreach (var chunk in needed)
+            // 加载新需要的区块
+            foreach (var chunk in neededChunks)
             {
                 if (!loadedChunks.Contains(chunk))
                 {
@@ -98,6 +126,13 @@ namespace XmqqyBackpack
                     OnChunkLoaded?.Invoke(chunk, chunkNoiseCache[chunk]);
                 }
             }
+        }
+
+        private Vector3Int GetChunkCoordFromWorldPos(Vector3 worldPos)
+        {
+            int x = Mathf.FloorToInt(worldPos.x / chunkSize);
+            int z = Mathf.FloorToInt(worldPos.z / chunkSize);
+            return new Vector3Int(x, 0, z);
         }
 
         /// <summary> 生成区块内每个格子的原始噪声值 (0~1) </summary>
@@ -136,12 +171,6 @@ namespace XmqqyBackpack
                     return noiseMap[localX, localZ];
             }
             return 0f;
-        }
-
-        /// <summary> 外部调用：更新玩家位置 </summary>
-        public void SetPlayerPosition(Vector3 newPos)
-        {
-            playerPosition = newPos;
         }
     }
 }
