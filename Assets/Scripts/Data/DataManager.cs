@@ -1,5 +1,10 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using UnityEngine;
 
@@ -7,14 +12,15 @@ namespace XmqqyBackpack
 {
     public static class DataManager
     {
-        private static Dictionary<string, ItemData> _items = new Dictionary<string, ItemData>();
-        private static Dictionary<string, BuildingData> _buildings = new Dictionary<string, BuildingData>();
-        private static Dictionary<string, GroundData> _grounds = new Dictionary<string, GroundData>();
+        private static Dictionary<string, ThingDef> _defs = new Dictionary<string, ThingDef>();
+        private static Dictionary<string, ThingDef> _templates = new Dictionary<string, ThingDef>();
         private static bool _isLoaded = false;
 
         public static void LoadAll()
         {
             if (_isLoaded) return;
+
+            DefTypeRegistry.Initialize();
 
             string dataPath = Path.Combine(Application.streamingAssetsPath, "Data");
             if (!Directory.Exists(dataPath))
@@ -26,110 +32,202 @@ namespace XmqqyBackpack
             string[] xmlFiles = Directory.GetFiles(dataPath, "*.xml", SearchOption.AllDirectories);
             Debug.Log($"[DataManager] 找到 {xmlFiles.Length} 个 XML 文件");
 
+            var allDefs = new List<ThingDef>();
+
             foreach (string filePath in xmlFiles)
             {
-                TryLoadFile(filePath);
+                var loaded = DeserializeFile(filePath);
+                if (loaded != null)
+                    allDefs.AddRange(loaded);
+            }
+
+            foreach (var def in allDefs)
+            {
+                if (!string.IsNullOrEmpty(def.Name))
+                {
+                    if (_templates.ContainsKey(def.Name))
+                        Debug.LogWarning($"[DataManager] 重复的模板 Name: {def.Name}");
+                    _templates[def.Name] = def;
+                }
+            }
+
+            var resolving = new HashSet<string>();
+            foreach (var def in allDefs)
+            {
+                if (!string.IsNullOrEmpty(def.ParentName))
+                    ResolveInheritance(def, resolving);
+            }
+
+            foreach (var def in allDefs)
+            {
+                if (!def.Abstract && !string.IsNullOrEmpty(def.DefName))
+                {
+                    if (_defs.ContainsKey(def.DefName))
+                        Debug.LogWarning($"[DataManager] 重复的 DefName: {def.DefName}");
+                    _defs[def.DefName] = def;
+                }
             }
 
             _isLoaded = true;
-            Debug.Log($"[DataManager] 加载完成: Item={_items.Count}, Building={_buildings.Count}, Ground={_grounds.Count}");
+            Debug.Log($"[DataManager] 加载完成: Defs={_defs.Count}, Templates={_templates.Count}");
         }
 
-        private static void TryLoadFile(string filePath)
-        {
-            // 1. 尝试作为 BuildingData 列表加载
-            var buildingList = Deserialize<List<BuildingData>>(filePath, "Defs");
-            if (buildingList != null && buildingList.Count > 0)
-            {
-                foreach (var b in buildingList)
-                    if (!_buildings.ContainsKey(b.DefName))
-                        _buildings[b.DefName] = b;
-                Debug.Log($"[DataManager] 加载 Building: {Path.GetFileName(filePath)} -> {buildingList.Count} 条");
-                return;
-            }
-
-            // 2. 尝试作为 GroundData 列表加载
-            var groundList = Deserialize<List<GroundData>>(filePath, "Defs");
-            if (groundList != null && groundList.Count > 0)
-            {
-                foreach (var g in groundList)
-                    if (!_grounds.ContainsKey(g.DefName))
-                        _grounds[g.DefName] = g;
-                Debug.Log($"[DataManager] 加载 Ground: {Path.GetFileName(filePath)} -> {groundList.Count} 条");
-                return;
-            }
-
-            // 3. 尝试作为 ItemData 列表加载
-            var itemList = Deserialize<List<ItemData>>(filePath, "Defs");
-            if (itemList != null && itemList.Count > 0)
-            {
-                foreach (var i in itemList)
-                    if (!_items.ContainsKey(i.DefName))
-                        _items[i.DefName] = i;
-                Debug.Log($"[DataManager] 加载 Item: {Path.GetFileName(filePath)} -> {itemList.Count} 条");
-                return;
-            }
-
-            Debug.LogWarning($"[DataManager] 无法识别文件内容: {filePath}");
-        }
-
-        private static T Deserialize<T>(string filePath, string rootName)
+        private static List<ThingDef> DeserializeFile(string filePath)
         {
             try
             {
-                var serializer = new XmlSerializer(typeof(T), new XmlRootAttribute(rootName));
+                var doc = XDocument.Load(filePath);
+                var root = doc.Root;
+                if (root == null)
+                {
+                    Debug.LogWarning($"[DataManager] 空文件: {filePath}");
+                    return null;
+                }
+
+                string typeClass = root.Attribute("TypeClass")?.Value;
+                if (string.IsNullOrEmpty(typeClass))
+                {
+                    Debug.LogWarning($"[DataManager] 缺少 TypeClass 属性: {filePath}");
+                    return null;
+                }
+
+                Type concreteType = DefTypeRegistry.GetType(typeClass);
+                if (concreteType == null)
+                {
+                    Debug.LogWarning($"[DataManager] 未知 TypeClass '{typeClass}': {filePath}");
+                    return null;
+                }
+
+                var listType = typeof(List<>).MakeGenericType(concreteType);
+                var serializer = new XmlSerializer(listType, new XmlRootAttribute("Defs"));
+
                 using (var reader = new StreamReader(filePath))
-                    return (T)serializer.Deserialize(reader);
+                {
+                    var list = (IList)serializer.Deserialize(reader);
+                    var result = new List<ThingDef>();
+                    foreach (var item in list)
+                        result.Add((ThingDef)item);
+                    Debug.Log($"[DataManager] 加载 {typeClass}: {Path.GetFileName(filePath)} -> {result.Count} 条");
+                    return result;
+                }
             }
-            catch
+            catch (Exception e)
             {
-                return default(T);
+                Debug.LogError($"[DataManager] 反序列化失败: {filePath}\n{e.Message}");
+                return null;
             }
+        }
+
+        private static void ResolveInheritance(ThingDef def, HashSet<string> resolving)
+        {
+            if (string.IsNullOrEmpty(def.ParentName))
+                return;
+
+            if (!_templates.TryGetValue(def.ParentName, out var parent))
+            {
+                Debug.LogError($"[DataManager] ParentName='{def.ParentName}' 不存在 (DefName={def.DefName ?? def.Name})");
+                return;
+            }
+
+            if (def.ParentName == def.Name || def.ParentName == def.DefName)
+            {
+                Debug.LogError($"[DataManager] 自引用继承: {def.ParentName}");
+                return;
+            }
+
+            if (!resolving.Add(def.ParentName))
+            {
+                Debug.LogError($"[DataManager] 循环继承检测: {string.Join(" -> ", resolving)}");
+                resolving.Remove(def.ParentName);
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(parent.ParentName))
+                ResolveInheritance(parent, resolving);
+
+            resolving.Remove(def.ParentName);
+
+            MergeProperties(parent, def);
+        }
+
+        private static void MergeProperties(ThingDef parent, ThingDef child)
+        {
+            var defaultInstance = Activator.CreateInstance(child.GetType());
+            var type = child.GetType();
+
+            var flags = BindingFlags.Public | BindingFlags.Instance;
+            var properties = type.GetProperties(flags)
+                .Where(p => p.CanWrite && p.CanRead)
+                .Where(p => p.Name != "Name" && p.Name != "ParentName" && p.Name != "Abstract");
+
+            foreach (var prop in properties)
+            {
+                var childVal = prop.GetValue(child);
+                var defaultVal = prop.GetValue(defaultInstance);
+
+                if (ValuesEqual(childVal, defaultVal))
+                {
+                    var parentProp = parent.GetType().GetProperty(prop.Name, flags);
+                    if (parentProp != null && parentProp.CanRead)
+                    {
+                        var parentVal = parentProp.GetValue(parent);
+                        if (!ValuesEqual(parentVal, defaultVal))
+                            prop.SetValue(child, parentVal);
+                    }
+                }
+            }
+        }
+
+        private static bool ValuesEqual(object a, object b)
+        {
+            if (a == null && b == null) return true;
+            if (a == null || b == null) return false;
+            if (a is IList listA && b is IList listB)
+                return listA.Count == listB.Count && listA.Cast<object>().SequenceEqual(listB.Cast<object>());
+            return a.Equals(b);
+        }
+
+        public static T GetDef<T>(string defName) where T : ThingDef
+        {
+            if (!_isLoaded) LoadAll();
+            _defs.TryGetValue(defName, out var def);
+            return def as T;
+        }
+
+        public static IEnumerable<T> GetAllDefs<T>() where T : ThingDef
+        {
+            if (!_isLoaded) LoadAll();
+            return _defs.Values.OfType<T>();
         }
 
         public static ItemData GetItem(string defName)
         {
-            _items.TryGetValue(defName, out var data);
-            if (data == null) Debug.LogWarning($"[DataManager] 未找到物品: {defName}");
-            return data;
+            return GetDef<ItemData>(defName);
         }
 
         public static BuildingData GetBuilding(string defName)
         {
-            _buildings.TryGetValue(defName, out var data);
-            if (data == null) Debug.LogWarning($"[DataManager] 未找到建筑: {defName}");
-            return data;
+            return GetDef<BuildingData>(defName);
         }
 
         public static GroundData GetGround(string defName)
         {
-            _grounds.TryGetValue(defName, out var data);
-            if (data == null) Debug.LogWarning($"[DataManager] 未找到地面: {defName}");
-            return data;
+            return GetDef<GroundData>(defName);
         }
-        
-        /// <summary>
-        /// 获取所有物品数据
-        /// </summary>
+
         public static IEnumerable<ItemData> GetAllItems()
         {
-            return _items.Values;
+            return GetAllDefs<ItemData>();
         }
 
-        /// <summary>
-        /// 获取所有建筑数据
-        /// </summary>
         public static IEnumerable<BuildingData> GetAllBuildings()
         {
-            return _buildings.Values;
+            return GetAllDefs<BuildingData>();
         }
 
-        /// <summary>
-        /// 获取所有地面数据
-        /// </summary>
         public static IEnumerable<GroundData> GetAllGrounds()
         {
-            return _grounds.Values;
+            return GetAllDefs<GroundData>();
         }
     }
 }

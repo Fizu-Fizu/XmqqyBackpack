@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs TypeClass="GroundData">
+  <GroundData Name="BaseGround" Abstract="true">
+    <PathCost>0</PathCost>
+    <IsBuildable>true</IsBuildable>
+    <Fertility>0</Fertility>
+  </GroundData>
+</Defs>

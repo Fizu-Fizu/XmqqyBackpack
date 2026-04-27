@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Defs>
-  <ItemData>
+<Defs TypeClass="ItemData">
+  <ItemData ParentName="BaseItem">
     <DefName>Wood</DefName>
     <Label>原木</Label>
-    <Description>todo</Description>
+    <Description>基础建材</Description>
     <IconPath>Textures/Items/Resource/wood</IconPath>
   </ItemData>
 
-  <ItemData>
-    <DefName>Stone</DefName>
+  <ItemData ParentName="BaseItem">
+    <DefName>Label</DefName>
     <Label>原石</Label>
-    <Description>todo</Description>
-    <IconPath>Textures/Items/Resource/stone</IconPath>
+    <Description>基础矿物原料</Description>
+    <IconPath>Textures/Items/Resource/label</IconPath>
   </ItemData>
 
-  <ItemData>
+  <ItemData ParentName="BaseItem">
     <DefName>Iron_Ore</DefName>
     <Label>铁矿</Label>
-    <Description>todo</Description>
+    <Description>铁矿石，与煤一同熔炼可获得铁</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
-        <DefName>Stone</DefName>
+        <DefName>Label</DefName>
         <Amount>2</Amount>
       </CostItem>
     </CraftRecipe>
     <IconPath>Textures/Items/Resource/iron_ore</IconPath>
   </ItemData>
 
-  <ItemData>
+  <ItemData ParentName="BaseItem">
     <DefName>Coal</DefName>
     <Label>煤</Label>
-    <Description>todo</Description>
+    <Description>燃料，用于熔炼矿石</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
-        <DefName>Stone</DefName>
+        <DefName>Label</DefName>
         <Amount>2</Amount>
       </CostItem>
     </CraftRecipe>
     <IconPath>Textures/Items/Resource/coal</IconPath>
   </ItemData>
 
-  <ItemData>
+  <ItemData ParentName="BaseItem">
     <DefName>Iron</DefName>
     <Label>铁</Label>
-    <Description>todo</Description>
+    <Description>金属铁，可制作铁质工具、武器</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -60,10 +60,10 @@
     <IconPath>Textures/Items/Resource/iron</IconPath>
   </ItemData>
 
-  <ItemData>
+  <ItemData ParentName="BaseItem">
     <DefName>Steel</DefName>
     <Label>钢</Label>
-    <Description>todo</Description>
+    <Description>合金材料，用于高级工具和武器</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>

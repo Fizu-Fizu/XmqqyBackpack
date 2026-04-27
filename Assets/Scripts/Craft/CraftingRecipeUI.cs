@@ -16,22 +16,16 @@ namespace XmqqyBackpack
 
         private ItemData recipeData;           // 当前配方对应的物品数据
 
-        /// <summary>
-        /// 初始化配方 UI
-        /// </summary>
         public void Initialize(ItemData data)
         {
             recipeData = data;
             if (recipeData == null || !recipeData.CanCraft) return;
 
-            // 清空容器（防止重复生成）
             ClearContainer(materialsContainer);
             ClearContainer(productsContainer);
 
-            // 设置产物列表（通常一个配方产出一种物品，数量固定为1，也可扩展）
             AddItemEntry(productsContainer, recipeData.DefName, 1);
 
-            // 设置材料列表
             if (recipeData.CraftRecipe != null)
             {
                 foreach (CostItem cost in recipeData.CraftRecipe)
@@ -40,7 +34,6 @@ namespace XmqqyBackpack
                 }
             }
 
-            // 绑定合成按钮事件
             craftButton.onClick.RemoveAllListeners();
             craftButton.onClick.AddListener(OnCraftButtonClicked);
         }
@@ -63,22 +56,20 @@ namespace XmqqyBackpack
 
         private void OnCraftButtonClicked()
         {
-            if (InventoryManager.Instance == null)
+            if (InventoryView.Instance == null)
             {
-                Debug.LogError("InventoryManager 实例不存在！");
+                Debug.LogError("InventoryView 实例不存在！");
                 return;
             }
 
-            bool success = InventoryManager.Instance.CraftItem(recipeData.DefName);
+            bool success = InventoryView.Instance.CraftItem(recipeData.DefName);
             if (success)
             {
                 Debug.Log($"合成成功: {recipeData.Label}");
-                // 可选：播放音效、UI特效、刷新合成表（如高亮按钮）
             }
             else
             {
                 Debug.Log($"合成失败: {recipeData.Label}，材料不足或其它条件不满足");
-                // 可选：显示红色提示文字
             }
         }
     }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs TypeClass="BuildingData">
+  <BuildingData Name="BaseBuilding" Abstract="true">
+    <PathCost>-1</PathCost>
+    <IsBuildable>false</IsBuildable>
+    <HasShadow>true</HasShadow>
+    <IsFullBlockShadow>true</IsFullBlockShadow>
+  </BuildingData>
+</Defs>

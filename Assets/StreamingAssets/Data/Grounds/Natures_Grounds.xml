@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Defs>
+<Defs TypeClass="GroundData">
   <!-- 泥土 -->
-  <GroundData>
+  <GroundData ParentName="BaseGround">
     <DefName>Dirt</DefName>
     <Label>泥土</Label>
     <Description>可以耕种的表面, 但肥力不行</Description>
@@ -10,7 +10,7 @@
     <TexturePath>Textures/Grounds/Natures/dirt</TexturePath>
   </GroundData>
   <!-- 草地 -->
-  <GroundData>
+  <GroundData ParentName="BaseGround">
     <DefName>Grass</DefName>
     <Label>草</Label>
     <Description>可以耕种的表面, 肥力一般</Description>
@@ -19,7 +19,7 @@
     <TexturePath>Textures/Grounds/Natures/grass</TexturePath>
   </GroundData>
   <!-- 碎石 -->
-  <GroundData>
+  <GroundData ParentName="BaseGround">
     <DefName>Cobble</DefName>
     <Label>碎石</Label>
     <Description>遍布碎石，不可耕种</Description>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Defs>
-  <BuildingData>
+<Defs TypeClass="BuildingData">
+  <BuildingData ParentName="BaseBuilding">
     <DefName>Stone</DefName>
     <Label>石头</Label>
     <Description>随处可见的石头, 挖掘可以获得原石</Description>
@@ -11,7 +11,7 @@
     <HasShadow>true</HasShadow>
     <DeconstructDropList>
       <DropItem>
-        <DefName>Stone</DefName>
+        <DefName>Label</DefName>
           <MinAmount>8</MinAmount>
           <MaxAmount>10</MaxAmount>
       </DropItem>
@@ -21,7 +21,7 @@
     </DestroyTypes>
   </BuildingData>
 
-  <BuildingData>
+  <BuildingData ParentName="BaseBuilding">
     <DefName>Tree</DefName>
     <Label>橡树</Label>
     <Description>随处可见的橡树, 砍伐可以获得原木</Description>

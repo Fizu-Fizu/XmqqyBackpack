@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Defs>
-  <ItemData>
+<Defs TypeClass="ItemData">
+  <ItemData ParentName="BaseTool">
     <DefName>Iron_Sword</DefName>
     <Label>铁剑</Label>
-    <Description>todo</Description>
+    <Description>基础近战武器</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -18,10 +18,10 @@
     <IconPath>Textures/Items/Tools/iron_sword</IconPath>
   </ItemData>
 
-  <ItemData>
+  <ItemData ParentName="BaseTool">
     <DefName>Iron_Pickaxe</DefName>
     <Label>铁镐</Label>
-    <Description>todo</Description>
+    <Description>采集石料用，工作效率提高 1.5 倍</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -41,11 +41,11 @@
       <WorkSpeedBonus>1.5</WorkSpeedBonus>
     </ToolProperties>
   </ItemData>
-  
-  <ItemData>
+
+  <ItemData ParentName="BaseTool">
     <DefName>Iron_Hoe</DefName>
     <Label>铁锄</Label>
-    <Description>todo</Description>
+    <Description>开垦耕地用，工作效率提高 1.5 倍</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -59,11 +59,11 @@
     </CraftRecipe>
     <IconPath>Textures/Items/Tools/iron_hoe</IconPath>
   </ItemData>
-  
-  <ItemData>
+
+  <ItemData ParentName="BaseTool">
     <DefName>Iron_Axe</DefName>
     <Label>铁斧</Label>
-    <Description>todo</Description>
+    <Description>砍伐原木用，工作效率提高 1.5 倍</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -83,11 +83,11 @@
       <WorkSpeedBonus>1.5</WorkSpeedBonus>
     </ToolProperties>
   </ItemData>
-  
-  <ItemData>
+
+  <ItemData ParentName="BaseTool">
     <DefName>Steel_Sword</DefName>
     <Label>钢剑</Label>
-    <Description>todo</Description>
+    <Description>更坚固锋利的近战武器</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -102,10 +102,10 @@
     <IconPath>Textures/Items/Tools/steel_sword</IconPath>
   </ItemData>
 
-  <ItemData>
+  <ItemData ParentName="BaseTool">
     <DefName>Steel_Pickaxe</DefName>
     <Label>钢镐</Label>
-    <Description>todo</Description>
+    <Description>采集石料用，工作效率提高 2 倍</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -126,10 +126,10 @@
     </ToolProperties>
   </ItemData>
   
-  <ItemData>
+  <ItemData ParentName="BaseTool">
     <DefName>Steel_Hoe</DefName>
     <Label>钢锄</Label>
-    <Description>todo</Description>
+    <Description>开垦耕地用，工作效率提高 2 倍</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>
@@ -144,10 +144,10 @@
     <IconPath>Textures/Items/Tools/steel_hoe</IconPath>
   </ItemData>
   
-  <ItemData>
+  <ItemData ParentName="BaseTool">
     <DefName>Steel_Axe</DefName>
     <Label>钢斧</Label>
-    <Description>todo</Description>
+    <Description>砍伐原木用，工作效率提高 2 倍</Description>
     <CanCraft>true</CanCraft>
     <CraftRecipe>
       <CostItem>

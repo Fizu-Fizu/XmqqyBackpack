@@ -111,7 +111,7 @@ public class DeconstructTask : ITask
         foreach (var drop in buildingData.DeconstructDropList)
         {
             int count = Random.Range(drop.MinAmount, drop.MaxAmount + 1);
-            InventoryManager.Instance.AddItem(drop.DefName, count);
+            InventoryView.Instance.AddItem(drop.DefName, count);
             Debug.Log($"[DeconstructTask] 掉落 {drop.DefName} x{count}");
         }
     }

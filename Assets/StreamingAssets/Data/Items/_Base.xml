@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs TypeClass="ItemData">
+  <ItemData Name="BaseItem" Abstract="true">
+    <MaxStack>100</MaxStack>
+    <CanCraft>false</CanCraft>
+  </ItemData>
+  <ItemData Name="BaseTool" ParentName="BaseItem" Abstract="true">
+    <MaxStack>1</MaxStack>
+  </ItemData>
+</Defs>
